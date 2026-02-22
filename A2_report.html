@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<title>Vis & Society Assignment 2</title>
+	<link rel="stylesheet" href="https://vis-society.github.io/assignments/report.css" />
+</head>
+
+<body>
+	<header>
+		<h1>
+			<small>Assignment 2</small>
+			Exploratory Data Analysis
+		</h1>
+
+		<p>
+			<strong>Paris Myers</strong> — <em>parismyers@mit.edu</em>
+		</p>
+	</header>
+	<main>
+		<section>
+			<h2>Subtheme: Speculation</h2>
+
+			<p>
+				Dataset: Condo Conversions in the City of Boston, 2015–2024. I decided on the Speculation housing theme — specifically the reading <em>When Private Equity Becomes Your Landlord</em>. Based on the reading and my own housing experience in Cambridge, I was particularly interested in the Condo Conversions dataset for Boston and Cambridge as it seemed the most "embodied" or immediately personal to me (i.e. you could visually see in your neighborhood or in your home the effects of new ownership).
+			</p>
+
+			<h3>Overall Analysis Questions</h3>
+			<ol>
+				<li>How do condo conversions change the physical aesthetic of a neighborhood — e.g. its colors, textures, materials, and scale?</li>
+				<li>How does visualizing real-world image data (via Google Maps) influence perception of (and connection to) before-and-after changes?</li>
+				<li>How is using Claude for data visualization different from using an existing/canon visualization tool? Does it introduce a new kind of bias?</li>
+			</ol>
+		</section>
+
+		<section>
+			<h2>Discoveries &amp; Insights</h2>
+
+			<figure>
+				<img src="land_value_chart.png" alt="Land Value Before and After Condo Conversion — Boston and Cambridge 2015–2024" />
+				<figcaption>
+					<strong>Figure 1:</strong> On the left: land value of condo conversions in Boston and Cambridge. On the right: Land value % change (increase) in value after conversion. I began with initial micro-explorations of all the datasets in Tableau and discovered several data quality issues including zipcode formatting errors, column name mismatches between the Boston and Cambridge CSVs, and commercial outliers: 100 Huntington Ave, Boston ($209M land value before conversion in 2016); 80–90 First St, Cambridge ($158M to $202M between 2022–2023, in Kendall Square); and 145 Seaport Blvd, Boston ($103M prior, $112M post in 2018). I initially thought these were errors, but came to realize these were land prices — which inspired later analysis.
+				</figcaption>
+			</figure>
+
+			<figure>
+				<img src="streetview_interface.png" alt="High-Value Condo Conversions Street View Interface" />
+				<figcaption>
+					<strong>Figure 2:</strong> I wanted to actually see the real before and after of the land at a location with real images. So I used Claude to "vibe code" an interface that would call the relevant Google Maps APIs. Then something interesting happened: The timeline feature was not actually working, and as you can see above, only the current street view was showing. Note: this is the interface for only high value condo conversions (over 10 million). When I started looking at the "images" and realized the before and after images were the same, I looked into what the maps API was really calling. It never occurred to me that Google Maps would not have historic images from previous years available via API. Apparently you can only access historical imagery from within Google products directly, and even then, the timeline feature requires manual user interaction — it cannot be programmatically controlled. This meant the before-and-after visualization I envisioned was not buildable in the way I imagined. This brought up an interesting point of data ownership: if Google decided to erase or edit these images, there would be no API access to the prior information. It also raises the question of how many interfaces would benefit from this image data but are unable to be built due to these restrictions.
+				</figcaption>
+			</figure>
+
+			<figure>
+				<img src="high_value_bar_chart.png" alt="High-Value Land Parcels over $10M — Before and After Conversion, Boston and Cambridge" />
+				<figcaption>
+					<strong>Figure 3:</strong> I graphed all included data for Boston and Cambridge with land valued over $10 million. The large changes in land value were dominated by Cambridge, most likely due to the commercial areas. I went into this assignment more interested in aesthetics of the housing conversions, but I became more interested in the underlying price driver: land. I started getting more curious about the relationship between land and housing, informed by background reading (e.g., <em>Post Alley: The Core Issue — What's Really Driving Up the Cost of Housing</em>). I became curious whether these high value properties were indicative of broader housing trends — similar to how in Portland, OR, the construction of a new Ritz Carlton residential tower in the Pearl District before Covid was seen by nearby condo owners as a potential driver of recovery for tanking housing prices. After further thought, however, I decided the commercial data was skewing things too much and filtered accordingly.
+				</figcaption>
+			</figure>
+
+			<figure>
+				<img src="tableau_sketch.png" alt="Quick data sketch of Cambridge prior owner zipcodes in Tableau showing owner addresses across the United States" />
+				<figcaption>
+					<strong>Figure 4:</strong> This was my quick "data sketch" (not full visualization) of the Cambridge prior owner zipcodes showing owner addresses across the United States. This is fascinating because at first I thought it was an error before realizing that the addresses of the owner could be out of state. I hadn't considered that. This quick "preview" on the map revealed what I first thought was an error: out of state addresses. Looking into the CSV more, I realized that the city of Cambridge tracks <em>owner</em> zipcode rather than <em>property</em> zipcode, while the city of Boston only tracks property location zipcode. I was curious whether there is a relationship between where land becomes expensive and where the population is migrating. The follow-up question this raises is: who is migrating where? The dataset has two types of address fields: the property address (the actual location) and the owner address (the landlord's mailing address). I discovered that 164 out of 285 Cambridge properties (over 50%) have owner zips outside Cambridge. Boston has its own ZIPCODE_prior column so all are property zips, while Cambridge properties include owner zip codes — meaning we cannot see in Boston whether out of state or foreign parties own specific buildings. This is reminiscent of Vancouver, Canada, which in 2022 banned international purchase of real estate because it was causing housing prices to explode for normal families (Government of Canada, 2024).
+				</figcaption>
+			</figure>
+
+			<figure>
+				<img src="map_initial_attempt.png" alt="First attempt at heat map visualization showing 2015 and 2022 population density" />
+				<figcaption>
+					<strong>Above:</strong> My first attempts at the heat map visualization did not reflect the land outside of Cambridge well, so I switched to the Folium Python library to include a full map of the US. For my final/main visualization exploration, I created two heat maps for population: one with 2015 population density and one with 2022 population density for Cambridge and Boston. Each interactive map features all of the address pre and post points for Cambridge and Boston. To do this, I used the Census Bureau's free API to ask for each property lat/lng which census tract the point falls in and include that population data in the final map.
+				</figcaption>
+			</figure>
+
+			<figure>
+				<img src="map_2022_folium.png" alt="2022 Post-Conversion Owner Address Location with Cambridge population density, zoomed out and zoomed in" />
+				<figcaption>
+					<strong>Above:</strong> Left: Zoomed out image of the 2022 Post-Conversion Owner Address Location and Cambridge population density (not clear until you zoom in). Right: Zoom in of Cambridge Post-Conversion owner addresses with population density. There are out of state owners in California, Florida, etc.
+				</figcaption>
+			</figure>
+
+			<figure>
+				<img src="map_2015_suspicious.png" alt="2015 Cambridge owner addresses with population density showing no out-of-state addresses — suspicious" />
+				<figcaption>
+					<strong>Above:</strong> Zoom in and out of 2015 Cambridge Post-Conversion owner addresses with population density and addresses. There were no out of state owner addresses here. This is suspicious! I found it unlikely that there were no out of state owners in Cambridge in 2015. So I reviewed the "vibe-coded" python code co-formed with Claude and found these errors: Map 1 uses property geometry centroids — extracted directly from the geometry column of the CSV using polygon coordinates. These are the physical locations of the Cambridge properties themselves, so they're all in Cambridge. Map 2 uses geocoded owner mailing addresses — the Owner_Address_post, Owner_City_post, etc. fields, which represent where the owners actually live after the condo conversion. These spread out across the US. This is very important because if I did NOT review how exactly the addresses were being organized, then I could assume that my data was telling me a very different story (i.e. 2015 every owner was in Cambridge).
+				</figcaption>
+			</figure>
+
+			<figure>
+				<img src="map_final_updated.png" alt="Updated final map with prior and post conversion owner addresses and Cambridge population density" />
+				<figcaption>
+					<strong>Above:</strong> Here is the updated, final map, which included prior and post conversion owner addresses and Cambridge population density.
+				</figcaption>
+			</figure>
+
+			<figure>
+				<img src="map_final_zoomedIn.png" alt="Final map zoomed in with prior and post conversion owner addresses and Cambridge population density with layer toggles" />
+				<figcaption>
+					<strong>Above:</strong> Final map, zoomed in, which includes prior and post conversion owner addresses and Cambridge population density. The user can check on and off this on the side.
+				</figcaption>
+			</figure>
+
+			<figure>
+				<img src="distance_bands_chart.png" alt="Distance from Cambridge: Owner Addresses Before vs. After Condo Conversion" />
+				<figcaption>
+					<strong>Above:</strong> I was then curious if / how the percent of out of state owners changed. Oddly enough it did not — just the states inhabited did.
+				</figcaption>
+			</figure>
+
+		</section>
+
+		<section>
+			<h2>Summary</h2>
+
+			<p>As someone who loves to draw and paint things physically, I find digital data analysis tools to be both restrictive and expressive. What I distinctly love about digital data visualization is the possibility for interactivity — zooming in and out — and the inclusion of exact photographic or geographic data. It was extremely interesting to run into the limitations of different softwares in the effort to answer my initial question, which I thought was straightforward.</p>
+
+			<p>I went into this being more interested in the literal housing conversions, but when I started really seeing what was in these I became more interested in the underlying price driver: land! I came into working on this data set assuming I was dealing with housing buildings, probably under 5 million tops. When I graphed the land value, I was blown away by these numbers and assumed there must be errors. In the end, I became curious about if there is a relationship between where land becomes expensive and where the population is more or less migrating in an area.</p>
+
+			<p>I would love to call this a Data Journal. I found that in my efforts to explore or see the data in the way I wanted, I ended up actually exploring different tools and how to connect those tools. Perhaps my exploration of the data itself is limited — but I feel that my attention keeps being drawn, both out of necessity and intrigue, to the larger forces at play that govern our access to and presentation of data.</p>
+
+			<p>My final closing question is: how will AI-assisted graphs of real data shape the narratives of our reality? This is a wildly different question than the one I started with — and I think that is the point.</p>
+		</section>
+	</main>
+</body>
+</html>
